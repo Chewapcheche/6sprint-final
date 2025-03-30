@@ -1,24 +1,23 @@
 package service
 
 import (
-	"fmt"
+	"strings"
 
 	"github.com/Yandex-Practicum/go1fl-sprint6-final/pkg/morse"
 )
 
 func Conv(str string) string {
-	var result string
 	if str == "" {
-		fmt.Println("empty text, nothing to convert")
-		return ""
+		return morse.ErrNoEncoding{Text: str}.Error()
 	}
-	for _, ch := range str {
-		if ch == 45 || ch == 46 {
-			result = morse.ToText(str)
-			return result
-		}
-		result = morse.ToMorse(str)
-		return result
+	isMorse := strings.ContainsFunc(str, func(r rune) bool {
+		return r == '-' || r == '.'
+	})
+
+	if isMorse {
+		return morse.ToText(str)
+	} else if strings.ContainsAny(str, "абвгдежзиклмнопрстуфхцчшщъыьэюяАБВГДЕЖЗИКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ0123456789") {
+		return morse.ToMorse(str)
 	}
-	return result
+	return morse.ErrNoEncoding{Text: str}.Error()
 }

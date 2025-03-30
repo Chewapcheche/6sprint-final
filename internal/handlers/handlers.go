@@ -12,15 +12,8 @@ import (
 )
 
 func IndexHandle(res http.ResponseWriter, req *http.Request) {
-	file, err := os.Open("C:/Users/pugra/Desktop/Golang/go6sprint/final/6sprint-final/index.html")
-	if err != nil {
-		http.Error(res, "HTML page load error", http.StatusInternalServerError)
-		return
-	}
-	defer file.Close()
-
-	res.Header().Set("Content-Type", "text/html")
-	io.Copy(res, file)
+	req.Header.Add("Content-Type", "text/html")
+	http.ServeFile(res, req, "../index.html")
 }
 
 func UploadHandle(res http.ResponseWriter, req *http.Request) {
@@ -59,7 +52,11 @@ func UploadHandle(res http.ResponseWriter, req *http.Request) {
 		http.Error(res, "file write error", http.StatusInternalServerError)
 		return
 	}
+	contentType := "text/plain"
+	res.Header().Set("Content-Type", contentType)
 
 	res.WriteHeader(http.StatusOK)
-	res.Write([]byte("file upload and converted:" + filename))
+	if _, err := res.Write([]byte(convertedData)); err != nil {
+		fmt.Println("response write error:", err)
+	}
 }
